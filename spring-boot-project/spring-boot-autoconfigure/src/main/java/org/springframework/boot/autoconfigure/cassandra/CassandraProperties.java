@@ -94,6 +94,13 @@ public class CassandraProperties {
 	private boolean ssl = false;
 
 	/**
+	 * Whether to perform hostname verification on the server's certificate when
+	 * SSL is enabled. Disable only if you are connecting to a Cassandra cluster
+	 * by IP address or in a trusted network environment.
+	 */
+	private boolean sslVerifyHostname = true;
+
+	/**
 	 * Connection configuration.
 	 */
 	private final Connection connection = new Connection();
@@ -191,6 +198,14 @@ public class CassandraProperties {
 
 	public void setSsl(boolean ssl) {
 		this.ssl = ssl;
+	}
+
+	public boolean isSslVerifyHostname() {
+		return this.sslVerifyHostname;
+	}
+
+	public void setSslVerifyHostname(boolean sslVerifyHostname) {
+		this.sslVerifyHostname = sslVerifyHostname;
 	}
 
 	public String getSchemaAction() {
