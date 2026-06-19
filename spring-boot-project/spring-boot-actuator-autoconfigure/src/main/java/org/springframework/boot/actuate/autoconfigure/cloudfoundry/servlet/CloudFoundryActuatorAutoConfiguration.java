@@ -34,7 +34,6 @@ import org.springframework.boot.actuate.endpoint.invoke.ParameterValueMapper;
 import org.springframework.boot.actuate.endpoint.web.EndpointMapping;
 import org.springframework.boot.actuate.endpoint.web.EndpointMediaTypes;
 import org.springframework.boot.actuate.endpoint.web.ExposableWebEndpoint;
-import org.springframework.boot.actuate.endpoint.web.PathMappedEndpoints;
 import org.springframework.boot.actuate.endpoint.web.annotation.ControllerEndpointsSupplier;
 import org.springframework.boot.actuate.endpoint.web.annotation.ServletEndpointsSupplier;
 import org.springframework.boot.actuate.health.HealthEndpoint;
@@ -66,9 +65,6 @@ import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.DispatcherServlet;
 
@@ -167,9 +163,8 @@ public class CloudFoundryActuatorAutoConfiguration {
 	public static class IgnoredCloudFoundryPathsWebSecurityConfiguration {
 
 		@Bean
-		IgnoredCloudFoundryPathsWebSecurityCustomizer ignoreCloudFoundryPathsWebSecurityCustomizer(
-				CloudFoundryWebEndpointServletHandlerMapping handlerMapping) {
-			return new IgnoredCloudFoundryPathsWebSecurityCustomizer(handlerMapping);
+		IgnoredCloudFoundryPathsWebSecurityCustomizer ignoreCloudFoundryPathsWebSecurityCustomizer() {
+			return new IgnoredCloudFoundryPathsWebSecurityCustomizer();
 		}
 
 	}
@@ -177,22 +172,12 @@ public class CloudFoundryActuatorAutoConfiguration {
 	@Order(SecurityProperties.IGNORED_ORDER)
 	static class IgnoredCloudFoundryPathsWebSecurityCustomizer implements WebSecurityCustomizer {
 
-		private final PathMappedEndpoints pathMappedEndpoints;
-
-		IgnoredCloudFoundryPathsWebSecurityCustomizer(CloudFoundryWebEndpointServletHandlerMapping handlerMapping) {
-			this.pathMappedEndpoints = new PathMappedEndpoints(BASE_PATH, handlerMapping::getAllEndpoints);
+		IgnoredCloudFoundryPathsWebSecurityCustomizer() {
 		}
 
 		@Override
 		public void customize(WebSecurity web) {
-			List<RequestMatcher> requestMatchers = new ArrayList<>();
-			this.pathMappedEndpoints.getAllPaths()
-				.forEach((path) -> requestMatchers.add(new AntPathRequestMatcher(path + "/**")));
-			requestMatchers.add(new AntPathRequestMatcher(BASE_PATH));
-			requestMatchers.add(new AntPathRequestMatcher(BASE_PATH + "/"));
-			if (!CollectionUtils.isEmpty(requestMatchers)) {
-				web.ignoring().requestMatchers(new OrRequestMatcher(requestMatchers));
-			}
+			web.ignoring().requestMatchers(new AntPathRequestMatcher(BASE_PATH + "/**"));
 		}
 
 	}
