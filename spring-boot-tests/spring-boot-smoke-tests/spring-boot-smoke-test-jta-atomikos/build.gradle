@@ -14,6 +14,9 @@ dependencies {
 		implementation("jakarta.xml.bind:jakarta.xml.bind-api")
 	}
 	implementation("org.springframework:spring-jms")
+	// javax.transaction.Transactional is meta-annotated with @javax.interceptor.InterceptorBinding;
+	// the interceptor API must be on the classpath for Javadoc to resolve that meta-annotation.
+	implementation("jakarta.interceptor:jakarta.interceptor-api:1.2.5")
 
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.apache.activemq:artemis-jms-server") {
